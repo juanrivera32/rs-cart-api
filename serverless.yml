@@ -16,3 +16,12 @@ functions:
       - http:
           method: get
           path: ping
+      - http:
+          method: get
+          path: /api/profile/cart
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                userId: true
+          
