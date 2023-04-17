@@ -8,6 +8,8 @@ import {
   Post,
   UseGuards,
   HttpStatus,
+  Param,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 // import { BasicAuthGuard, JwtAuthGuard } from '../auth';
@@ -16,28 +18,41 @@ import { AppRequest, getUserIdFromRequest } from '../shared';
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateCartDto } from './dto/create-cart.dto';
 
 @ApiTags('Carts')
 @Controller('api/profile/cart')
 export class CartController {
   constructor(
     private cartService: CartService,
-    // private orderService: OrderService,
   ) {}
 
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(BasicAuthGuard)
-  @Get()
-  async findUserCart(@Req() req: AppRequest) {
-    const cart = await this.cartService.findByUserId(
-      getUserIdFromRequest(req),
-    );
+  @Get(':userId')
+  async findUserCart(@Param() params) {
+    const cart = await this.cartService.findByUserId(params.userId);
 
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
       data: { cart },
     };
+  }
+
+  @Post()
+  async createUserCart(@Body() createCartDto :CreateCartDto) {
+    try {
+      console.log(createCartDto);
+      await this.cartService.createByUserId(createCartDto);
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'OK',
+          data: {
+            message: 'Cart created successfully'
+          },
+        };
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
   }
 
   // @UseGuards(JwtAuthGuard)

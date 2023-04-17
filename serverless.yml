@@ -14,7 +14,6 @@ provider:
     DATABASE_USERNAME: ${env:DATABASE_USERNAME}
     DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
     DATABASE_NAME: ${env:DATABASE_NAME}
-    PRODUCTS_TABLE_NAME: ${env:PRODUCTS_TABLE_NAME}
 functions:
   main:
     handler: dist/main.handler
@@ -27,10 +26,14 @@ functions:
           path: ping
       - http:
           method: get
-          path: /api/profile/cart
+          path: /api/profile/cart/{userId}
           cors: true
           request:
             parameters:
-              querystrings:
+              paths:
                 userId: true
+      - http:
+          method: post
+          path: /api/profile/cart
+          cors: true
           

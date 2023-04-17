@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import {Carts, CartStatus } from 'src/db/entities/cart.entity';
+import { CreateCartDto } from '../dto/create-cart.dto';
 
 @Injectable()
 export class CartService {
@@ -19,11 +20,11 @@ export class CartService {
     );
   }
 
-  async createByUserId(userId: string) {
+  async createByUserId(createCartDto: CreateCartDto) {
     try {
       const currentDate = new Date();
       const userCart: Carts = {
-        userId,
+        userId: createCartDto.userId,
         id: v4(),
         updatedAt: currentDate,
         createdAt: currentDate,
@@ -36,15 +37,15 @@ export class CartService {
     return true;
   }
 
-  async findOrCreateByUserId(userId: string): Promise<Carts | boolean> {
-    const userCart = await this.findByUserId(userId);
+  // async findOrCreateByUserId(userId: string): Promise<Carts | boolean> {
+  //   const userCart = await this.findByUserId(userId);
 
-    if (userCart) {
-      return userCart;
-    }
+  //   if (userCart) {
+  //     return userCart;
+  //   }
 
-    return this.createByUserId(userId);
-  }
+  //   return this.createByUserId(userId);
+  // }
 
   async updateByUserId({ userId, ...rest }: Carts): Promise<boolean> {
     try {
