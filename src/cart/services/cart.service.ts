@@ -1,54 +1,58 @@
-import { Injectable } from '@nestjs/common';
-
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
-
-import { Cart } from '../models';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Carts, CartStatus } from 'src/db/entities/cart.entity';
+import { CreateCartDto } from '../dto/create-cart.dto';
 
 @Injectable()
 export class CartService {
-  private userCarts: Record<string, Cart> = {};
+  constructor(
+    @InjectRepository(Carts)
+    private readonly userCarts: Repository<Carts>,
+  ) {}
 
-  findByUserId(userId: string): Cart {
-    return this.userCarts[userId];
+  async findByUserId(userId: string) {
+    return await this.userCarts.findOneBy({ userId });
   }
 
-  createByUserId(userId: string) {
-    const id = v4();
-    const userCart = {
-      id,
-      items: [],
-    };
-
-    this.userCarts[userId] = userCart;
-
-    return userCart;
-  }
-
-  findOrCreateByUserId(userId: string): Cart {
-    const userCart = this.findByUserId(userId);
-
-    if (userCart) {
-      return userCart;
+  async createByUserId(createCartDto: CreateCartDto) {
+    try {
+      const currentDate = new Date();
+      const userCart: Carts = {
+        userId: createCartDto.userId,
+        id: v4(),
+        updatedAt: createCartDto.updatedAt || currentDate,
+        createdAt: createCartDto.createdAt || currentDate,
+        status: createCartDto.status || CartStatus.OPEN,
+      };
+      await this.userCarts.insert(userCart);
+    } catch (e) {
+      return false;
     }
-
-    return this.createByUserId(userId);
+    return true;
   }
 
-  updateByUserId(userId: string, { items }: Cart): Cart {
-    const { id, ...rest } = this.findOrCreateByUserId(userId);
-
-    const updatedCart = {
-      id,
-      ...rest,
-      items: [...items],
-    };
-
-    this.userCarts[userId] = { ...updatedCart };
-
-    return { ...updatedCart };
+  async updateByUserId({
+    userId,
+    ...rest
+  }: Omit<Carts, 'id'>): Promise<Carts> {
+    try {
+      const cart = await this.findByUserId(userId);
+      const res = await this.userCarts.save({ userId, ...cart, ...rest });
+      return res;
+    } catch (e) {
+      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  removeByUserId(userId): void {
-    this.userCarts[userId] = null;
+  async removeByUserId(userId): Promise<boolean> {
+    try {
+      const cartToRemove = await this.findByUserId(userId);
+      await this.userCarts.remove(cartToRemove);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

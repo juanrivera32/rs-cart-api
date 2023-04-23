@@ -1,4 +1,5 @@
 service: cart-service
+frameworkVersion: 3
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
@@ -6,6 +7,13 @@ useDotenv: true
 provider:
   name: aws
   runtime: nodejs16.x
+  stage: dev
+  environment:
+    DATABASE_HOST: ${env:DATABASE_HOST}
+    DATABASE_PORT: ${env:DATABASE_PORT}
+    DATABASE_USERNAME: ${env:DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${env:DATABASE_PASSWORD}
+    DATABASE_NAME: ${env:DATABASE_NAME}
 functions:
   main:
     handler: dist/main.handler
@@ -16,3 +24,24 @@ functions:
       - http:
           method: get
           path: ping
+      - http:
+          method: get
+          path: /api/profile/cart/{userId}
+          cors: true
+          request:
+            parameters:
+              paths:
+                userId: true
+      - http:
+          method: post
+          path: /api/profile/cart
+          cors: true
+      - http:
+          method: put
+          path: /api/profile/cart/{userId}
+          cors: true
+      - http:
+          method: delete
+          path: /api/profile/cart/{userId}
+          cors: true
+          
