@@ -10,9 +10,7 @@ export class CartService {
   constructor(
     @InjectRepository(Carts)
     private readonly userCarts: Repository<Carts>,
-  ) {
-    console.log('hi from constructor')
-  }
+  ) {}
   
   async findByUserId(userId: string) {
     return await this.userCarts.findOneBy(
@@ -26,9 +24,9 @@ export class CartService {
       const userCart: Carts = {
         userId: createCartDto.userId,
         id: v4(),
-        updatedAt: currentDate,
-        createdAt: currentDate,
-        status: CartStatus.OPEN
+        updatedAt: createCartDto.updatedAt || currentDate,
+        createdAt: createCartDto.createdAt || currentDate,
+        status: createCartDto.status || CartStatus.OPEN
       }
       await this.userCarts.insert(userCart)
     } catch(e) {

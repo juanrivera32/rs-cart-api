@@ -31,6 +31,13 @@ export class CartController {
   async findUserCart(@Param() params) {
     const cart = await this.cartService.findByUserId(params.userId);
 
+    if (!cart) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `There are no carts for user ${params.userId}`
+      }
+    }
+
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
@@ -41,7 +48,6 @@ export class CartController {
   @Post()
   async createUserCart(@Body() createCartDto :CreateCartDto) {
     try {
-      console.log(createCartDto);
       await this.cartService.createByUserId(createCartDto);
         return {
           statusCode: HttpStatus.OK,
