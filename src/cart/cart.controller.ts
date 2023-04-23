@@ -20,9 +20,7 @@ import { Carts } from 'src/db/entities/cart.entity';
 @ApiTags('Carts')
 @Controller('api/profile/cart')
 export class CartController {
-  constructor(
-    private cartService: CartService,
-  ) {}
+  constructor(private cartService: CartService) {}
 
   @Get(':userId')
   async findUserCart(@Param() params) {
@@ -31,8 +29,8 @@ export class CartController {
     if (!cart) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
-        message: `There are no carts for user ${params.userId}`
-      }
+        message: `There are no carts for user ${params.userId}`,
+      };
     }
 
     return {
@@ -43,28 +41,31 @@ export class CartController {
   }
 
   @Post()
-  async createUserCart(@Body() createCartDto :CreateCartDto) {
+  async createUserCart(@Body() createCartDto: CreateCartDto) {
     try {
       await this.cartService.createByUserId(createCartDto);
-        return {
-          statusCode: HttpStatus.OK,
-          message: 'OK',
-          data: {
-            message: 'Cart created successfully'
-          },
-        };
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'OK',
+        data: {
+          message: 'Cart created successfully',
+        },
+      };
     } catch (e) {
       throw new InternalServerErrorException();
     }
   }
 
-  
   @Put(':userId')
-  async updateUserCart(@Param() params: AppRequest['params'], @Body() body: Omit<Carts, 'userId'>) {
+  async updateUserCart(
+    @Param() params: AppRequest['params'],
+    @Body() body: Omit<Carts, 'userId'>,
+  ) {
     // TODO: validate body payload...
-    const cart = await this.cartService.updateByUserId(
-      { userId: params.userId, ...body },
-    );
+    const cart = await this.cartService.updateByUserId({
+      userId: params.userId,
+      ...body,
+    });
 
     return {
       statusCode: HttpStatus.OK,
@@ -81,8 +82,8 @@ export class CartController {
     if (!wasCartDeleted) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Something went wrong. Please, try again later.'
-      }
+        message: 'Something went wrong. Please, try again later.',
+      };
     }
     return {
       statusCode: HttpStatus.OK,
