@@ -36,4 +36,8 @@ functions:
           method: post
           path: /api/profile/cart
           cors: true
+      - http:
+          method: put
+          path: /api/profile/cart/{userId}
+          cors: true
           

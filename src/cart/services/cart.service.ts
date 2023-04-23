@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
-import {Carts, CartStatus } from 'src/db/entities/cart.entity';
+import { Carts, CartStatus } from 'src/db/entities/cart.entity';
 import { CreateCartDto } from '../dto/create-cart.dto';
 
 @Injectable()
@@ -11,11 +11,9 @@ export class CartService {
     @InjectRepository(Carts)
     private readonly userCarts: Repository<Carts>,
   ) {}
-  
+
   async findByUserId(userId: string) {
-    return await this.userCarts.findOneBy(
-      { userId },
-    );
+    return await this.userCarts.findOneBy({ userId });
   }
 
   async createByUserId(createCartDto: CreateCartDto) {
@@ -26,10 +24,10 @@ export class CartService {
         id: v4(),
         updatedAt: createCartDto.updatedAt || currentDate,
         createdAt: createCartDto.createdAt || currentDate,
-        status: createCartDto.status || CartStatus.OPEN
-      }
-      await this.userCarts.insert(userCart)
-    } catch(e) {
+        status: createCartDto.status || CartStatus.OPEN,
+      };
+      await this.userCarts.insert(userCart);
+    } catch (e) {
       return false;
     }
     return true;
@@ -45,21 +43,25 @@ export class CartService {
   //   return this.createByUserId(userId);
   // }
 
-  async updateByUserId({ userId, ...rest }: Carts): Promise<boolean> {
+  async updateByUserId({
+    userId,
+    ...rest
+  }: Omit<Carts, 'id'>): Promise<Carts> {
     try {
-      const cart = await this.findByUserId(userId)
-      this.userCarts.save({userId, ...cart, ...rest});
-    } catch(e) {
-      return false;
+      const cart = await this.findByUserId(userId);
+      const res = await this.userCarts.save({ userId, ...cart, ...rest });
+      console.log('>>>>', res);
+      return res;
+    } catch (e) {
+      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return true;
   }
 
   async removeByUserId(userId): Promise<boolean> {
     try {
       const cartToRemove = await this.findByUserId(userId);
       this.userCarts.remove(cartToRemove);
-    } catch(e) {
+    } catch (e) {
       return false;
     }
     return true;

@@ -19,6 +19,7 @@ import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateCartDto } from './dto/create-cart.dto';
+import { Carts } from 'src/db/entities/cart.entity';
 
 @ApiTags('Carts')
 @Controller('api/profile/cart')
@@ -61,24 +62,22 @@ export class CartController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(BasicAuthGuard)
-  // @Put()
-  // updateUserCart(@Req() req: AppRequest, @Body() body: Omit<Cart, 'userId'>) {
-  //   // TODO: validate body payload...
-  //   const cart = this.cartService.updateByUserId(
-  //     { userId: getUserIdFromRequest(req), ...body },
-  //   );
+  
+  @Put(':userId')
+  async updateUserCart(@Param() params: AppRequest['params'], @Body() body: Omit<Carts, 'userId'>) {
+    // TODO: validate body payload...
+    const cart = await this.cartService.updateByUserId(
+      { userId: params.userId, ...body },
+    );
 
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'OK',
-  //     data: {
-  //       cart,
-  //       total: calculateCartTotal(cart),
-  //     },
-  //   };
-  // }
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Cart updated successfullys',
+      data: {
+        cart,
+      },
+    };
+  }
 
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(BasicAuthGuard)
