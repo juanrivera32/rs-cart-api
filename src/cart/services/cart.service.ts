@@ -33,16 +33,6 @@ export class CartService {
     return true;
   }
 
-  // async findOrCreateByUserId(userId: string): Promise<Carts | boolean> {
-  //   const userCart = await this.findByUserId(userId);
-
-  //   if (userCart) {
-  //     return userCart;
-  //   }
-
-  //   return this.createByUserId(userId);
-  // }
-
   async updateByUserId({
     userId,
     ...rest
@@ -50,7 +40,6 @@ export class CartService {
     try {
       const cart = await this.findByUserId(userId);
       const res = await this.userCarts.save({ userId, ...cart, ...rest });
-      console.log('>>>>', res);
       return res;
     } catch (e) {
       throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);

@@ -4,18 +4,14 @@ import {
   Delete,
   Put,
   Body,
-  Req,
   Post,
-  UseGuards,
   HttpStatus,
   Param,
   InternalServerErrorException,
 } from '@nestjs/common';
 
-// import { BasicAuthGuard, JwtAuthGuard } from '../auth';
 import { AppRequest, getUserIdFromRequest } from '../shared';
 
-import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateCartDto } from './dto/create-cart.dto';
@@ -79,8 +75,6 @@ export class CartController {
     };
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(BasicAuthGuard)
   @Delete(':userId')
   async clearUserCart(@Param() params: AppRequest['params']) {
     const wasCartDeleted = await this.cartService.removeByUserId(params.userId);
@@ -95,39 +89,4 @@ export class CartController {
       message: 'Cart deleted successfully',
     };
   }
-
-  // // @UseGuards(JwtAuthGuard)
-  // // @UseGuards(BasicAuthGuard)
-  // @Post('checkout')
-  // checkout(@Req() req: AppRequest, @Body() body) {
-  //   const userId = getUserIdFromRequest(req);
-  //   const cart = this.cartService.findByUserId(userId);
-
-  //   if (!(cart && cart.items.length)) {
-  //     const statusCode = HttpStatus.BAD_REQUEST;
-  //     req.statusCode = statusCode;
-
-  //     return {
-  //       statusCode,
-  //       message: 'Cart is empty',
-  //     };
-  //   }
-
-  //   const { id: cartId, items } = cart;
-  //   const total = calculateCartTotal(cart);
-  //   const order = this.orderService.create({
-  //     ...body, // TODO: validate and pick only necessary data
-  //     userId,
-  //     cartId,
-  //     items,
-  //     total,
-  //   });
-  //   this.cartService.removeByUserId(userId);
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'OK',
-  //     data: { order },
-  //   };
-  // }
 }
