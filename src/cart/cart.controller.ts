@@ -72,7 +72,7 @@ export class CartController {
 
     return {
       statusCode: HttpStatus.OK,
-      message: 'Cart updated successfullys',
+      message: 'Cart updated successfully',
       data: {
         cart,
       },
@@ -81,15 +81,20 @@ export class CartController {
 
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(BasicAuthGuard)
-  // @Delete()
-  // clearUserCart(@Req() req: AppRequest) {
-  //   this.cartService.removeByUserId(getUserIdFromRequest(req));
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'OK',
-  //   };
-  // }
+  @Delete(':userId')
+  async clearUserCart(@Param() params: AppRequest['params']) {
+    const wasCartDeleted = await this.cartService.removeByUserId(params.userId);
+    if (!wasCartDeleted) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Something went wrong. Please, try again later.'
+      }
+    }
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Cart deleted successfully',
+    };
+  }
 
   // // @UseGuards(JwtAuthGuard)
   // // @UseGuards(BasicAuthGuard)

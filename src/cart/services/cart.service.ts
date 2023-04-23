@@ -60,10 +60,10 @@ export class CartService {
   async removeByUserId(userId): Promise<boolean> {
     try {
       const cartToRemove = await this.findByUserId(userId);
-      this.userCarts.remove(cartToRemove);
+      await this.userCarts.remove(cartToRemove);
+      return true;
     } catch (e) {
       return false;
     }
-    return true;
   }
 }

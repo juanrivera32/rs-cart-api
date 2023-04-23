@@ -40,4 +40,8 @@ functions:
           method: put
           path: /api/profile/cart/{userId}
           cors: true
+      - http:
+          method: delete
+          path: /api/profile/cart/{userId}
+          cors: true
           
